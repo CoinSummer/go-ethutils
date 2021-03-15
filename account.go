@@ -3,13 +3,13 @@ package ethutils
 import (
 	"context"
 	"crypto/ecdsa"
+	"fmt"
 	"github.com/deng00/ethutils/key_manager"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
 	"io/ioutil"
 	"math/big"
 	"strings"
@@ -70,7 +70,7 @@ func GetAccountFromMnemonic(mnemonic string, index int) *Account {
 	km, _ := key_manager.NewKeyManagerWithMnemonic(256, "", mnemonic)
 	key, err := km.GetKey(key_manager.PurposeBIP44, key_manager.CoinTypeETH, 0, 0, uint32(index))
 	if err != nil {
-		fmt.Printf(err)
+		fmt.Printf("mnemonic error")
 		return nil
 	}
 	address, _, privateKey := key.EncodeEth()
@@ -112,6 +112,11 @@ func GetBalance(client *ethclient.Client, address common.Address) float64 {
 
 func NewMnemonic(bitSize int, passphrase string) (*key_manager.KeyManager, error) {
 	return key_manager.NewKeyManager(bitSize, passphrase)
+}
+
+func IsMnemonic(words string) bool {
+	l := len(strings.Split(words, " "))
+	return l == 12 || l == 24
 }
 
 func PrivateKeyToHex(pk *ecdsa.PrivateKey) string {
