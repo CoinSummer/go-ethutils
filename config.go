@@ -1,57 +1,54 @@
 package ethutils
 
 import (
-	"github.com/deng00/go-base/config"
-	"github.com/deng00/go-base/logging"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 	"strconv"
 )
 
-type Config struct {
-	config *config.Config
-	logger *logging.SugaredLogger
+type ConfigInterface interface {
+	IsSet(key string) bool
+	GetInt(key string) int
+	GetString(key string) string
+	GetStringMapString(key string) map[string]string
 }
 
-func NewConfig(config *config.Config, logger *logging.SugaredLogger) *Config {
+type Config struct {
+	config ConfigInterface
+}
+
+func NewConfig(config ConfigInterface) *Config {
 	return &Config{
 		config: config,
-		logger: logger,
 	}
 }
 
-func (c *Config) GetChainInfo() *Chain {
+func (c *Config) MustGetChainInfo() *Chain {
 	chainName := c.config.GetString("chain")
+	if chainName == "" {
+		fmt.Printf("chain not set")
+		os.Exit(1)
+	}
+	return c.GetChainInfo(c.config.GetString("chain"))
+}
+
+func (c *Config) GetChainInfo(chainName string) *Chain {
 	return ParserChainInfo(c.config.GetStringMapString("chains." + chainName))
 }
 
 func (c *Config) MustGetAccount() *Account {
 	accountName := c.config.GetString("account")
 	if accountName == "" {
-		c.logger.Fatalf("account not set")
+		fmt.Printf("account not set")
 		os.Exit(1)
 	}
 	account := c.GetAccount(accountName)
 	if account == nil {
-		c.logger.Fatalf("account %s not set", accountName)
+		fmt.Printf("account %s not set", accountName)
 		os.Exit(1)
 	}
 	return account
-}
-
-func (c *Config) MustGetToken(token string) Token {
-	IsSet := c.config.IsSet("tokens." + token)
-	if !IsSet {
-		c.logger.Fatalf("token %s not set", token)
-		os.Exit(1)
-	}
-	tokenInfo := c.config.GetStringMapString("tokens." + token)
-	_decimal, _ := strconv.Atoi(tokenInfo["decimal"])
-	address := HexToAddress(tokenInfo["address"])
-	return Token{
-		Address: &address,
-		Decimal: _decimal,
-	}
 }
 
 func (c *Config) GetAccount(accountName string) *Account {
@@ -65,21 +62,39 @@ func (c *Config) GetAccount(accountName string) *Account {
 	} else {
 		_account = GetAccountFromMnemonic(pStr, 0)
 	}
-	_account.Client = c.GetChainInfo().Client
-	c.logger.Infof("using account %s", _account.Address.Hex())
+	_account.Client = c.MustGetChainInfo().Client
 	return _account
+}
+
+func (c *Config) MustGetToken(token string) *Token {
+	IsSet := c.config.IsSet("tokens." + token)
+	if !IsSet {
+		fmt.Printf("token %s not set", token)
+		os.Exit(1)
+	}
+	return c.GetToken(token)
+}
+
+func (c *Config) GetToken(token string) *Token {
+	tokenInfo := c.config.GetStringMapString("tokens." + token)
+	_decimal, _ := strconv.Atoi(tokenInfo["decimal"])
+	address := HexToAddress(tokenInfo["address"])
+	return &Token{
+		Address: &address,
+		Decimal: _decimal,
+	}
 }
 
 func (c *Config) MustGetHDAccountByIndex(_index int) *Account {
 	accountName := c.config.GetString("account")
 	if accountName == "" {
-		c.logger.Fatalf("account not set")
+		fmt.Printf("account not set")
 		os.Exit(1)
 	}
 	pStr := c.config.GetString("accounts." + accountName + ".key")
 	_account := GetAccountFromMnemonic(pStr, _index)
 	if _account == nil {
-		c.logger.Infof("account parse error")
+		fmt.Printf("account %s parse error", accountName)
 		os.Exit(1)
 	}
 	return _account
@@ -88,7 +103,7 @@ func (c *Config) MustGetHDAccountByIndex(_index int) *Account {
 func (c *Config) MustGetContractAddress(name string) *common.Address {
 	cStr := c.config.GetString("contracts." + name)
 	if cStr == "" {
-		c.logger.Fatalf("contract %s not found", name)
+		fmt.Printf("contract %s not found", name)
 		os.Exit(1)
 	}
 	contract := HexToAddress(cStr)
