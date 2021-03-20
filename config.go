@@ -60,7 +60,10 @@ func (c *Config) GetAccount(accountName string) *Account {
 	if !IsMnemonic(pStr) {
 		_account = GetAccountFromPStr(pStr)
 	} else {
-		_account = GetAccountFromMnemonic(pStr, 0)
+		_account = GetAccountFromMnemonic(pStr, c.config.GetInt("account_index"))
+	}
+	if _account == nil {
+		return nil
 	}
 	_account.Client = c.MustGetChainInfo().Client
 	return _account

@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"io/ioutil"
 	"math/big"
+	"strconv"
 	"strings"
 )
 
@@ -122,4 +123,10 @@ func IsMnemonic(words string) bool {
 func PrivateKeyToHex(pk *ecdsa.PrivateKey) string {
 	privateKeyBytes := crypto.FromECDSA(pk)
 	return hexutil.Encode(privateKeyBytes)[2:]
+}
+
+func Sign(msg []byte, key *ecdsa.PrivateKey) ([]byte, error) {
+	ethMessage := append([]byte("\x19Ethereum Signed Message:\n"+strconv.Itoa(len(msg))), msg...)
+	hash := crypto.Keccak256(ethMessage)
+	return crypto.Sign(hash, key)
 }
