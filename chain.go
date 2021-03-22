@@ -9,12 +9,13 @@ import (
 )
 
 type Chain struct {
-	ChainId   int64
-	RpcAddr   string
-	Explore   string
-	GasPrice  *big.Int
-	WrapToken common.Address
-	Client    *ethclient.Client
+	ChainId       int64
+	RpcAddr       string
+	Explore       string
+	GasPrice      *big.Int
+	WrapToken     common.Address
+	BatchContract common.Address
+	Client        *ethclient.Client
 }
 
 func GetClient(rpcHost string) *ethclient.Client {
@@ -32,11 +33,12 @@ func ParserChainInfo(chainInfoMap map[string]string) *Chain {
 	_chainId, _ := strconv.Atoi(chainInfoMap["chain_id"])
 	_gasPrice, _ := strconv.Atoi(chainInfoMap["gas_price"])
 	chainInfo := &Chain{
-		ChainId:   int64(_chainId),
-		RpcAddr:   chainInfoMap["rpc_addr"],
-		Explore:   chainInfoMap["explore"],
-		GasPrice:  big.NewInt(int64(_gasPrice) * GWEI),
-		WrapToken: HexToAddress(chainInfoMap["wrap_token"]),
+		ChainId:       int64(_chainId),
+		RpcAddr:       chainInfoMap["rpc_addr"],
+		Explore:       chainInfoMap["explore"],
+		GasPrice:      big.NewInt(int64(_gasPrice) * GWEI),
+		WrapToken:     HexToAddress(chainInfoMap["wrap_token"]),
+		BatchContract: HexToAddress(chainInfoMap["batch_contract"]),
 	}
 	chainInfo.Client = GetClient(chainInfo.RpcAddr)
 	return chainInfo

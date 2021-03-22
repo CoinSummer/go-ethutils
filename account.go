@@ -16,6 +16,8 @@ import (
 	"strings"
 )
 
+var ZeroAddress  = common.HexToAddress("0x0000000000000000000000000000000000000000")
+
 func HexToAddress(s string) common.Address {
 	return common.HexToAddress(s)
 }
