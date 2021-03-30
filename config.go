@@ -2,9 +2,13 @@ package ethutils
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/howeyc/gopass"
+	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type ConfigInterface interface {
@@ -51,16 +55,39 @@ func (c *Config) MustGetAccount() *Account {
 	return account
 }
 
+func getPassLoop(keystoreBytes []byte) string {
+	fmt.Println("please enter your keystore file password:")
+	for {
+		password, _ := gopass.GetPasswdMasked()
+		_, err := keystore.DecryptKey(keystoreBytes, string(password))
+		if err == nil {
+			fmt.Println("decrypt success")
+			return string(password)
+		}
+		fmt.Println(err.Error())
+		fmt.Println("please reenter it:")
+	}
+}
+
 func (c *Config) GetAccount(accountName string) *Account {
 	pStr := c.config.GetString("accounts." + accountName + ".key")
 	if pStr == "" {
 		return nil
 	}
 	var _account *Account
-	if !IsMnemonic(pStr) {
-		_account = GetAccountFromPStr(pStr)
-	} else {
+	if IsMnemonic(pStr) {
 		_account = GetAccountFromMnemonic(pStr, c.config.GetInt("account_index"))
+	} else if strings.Contains(pStr, "/") {
+		keystoreBytes, err := ioutil.ReadFile(pStr)
+		if err != nil {
+			fmt.Printf("can not read keystore file content")
+			return nil
+		}
+		// keystore file
+		password := getPassLoop(keystoreBytes)
+		_account = GetAccountFromKS(pStr, password)
+	} else {
+		_account = GetAccountFromPStr(pStr)
 	}
 	if _account == nil {
 		return nil

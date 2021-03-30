@@ -16,7 +16,7 @@ import (
 	"strings"
 )
 
-var ZeroAddress  = common.HexToAddress("0x0000000000000000000000000000000000000000")
+var ZeroAddress = common.HexToAddress("0x0000000000000000000000000000000000000000")
 
 func HexToAddress(s string) common.Address {
 	return common.HexToAddress(s)
@@ -88,20 +88,19 @@ func GetAccountFromMnemonic(mnemonic string, index int) *Account {
 	}
 }
 
-func GetAccountFromKS(fromKeyStoreFile, password string) *Account {
-	fromKeystore, err := ioutil.ReadFile(fromKeyStoreFile)
+func GetAccountFromKS(keystoreFilePath, password string) *Account {
+	keystoreBytes, err := ioutil.ReadFile(keystoreFilePath)
 	if err != nil {
 		return nil
 	}
-	fromKey, err := keystore.DecryptKey(fromKeystore, password)
+	key, err := keystore.DecryptKey(keystoreBytes, password)
 	if err != nil {
 		return nil
 	}
-	fromPrivateKey := fromKey.PrivateKey
-	fromAddr := crypto.PubkeyToAddress(fromPrivateKey.PublicKey)
+	fromAddr := crypto.PubkeyToAddress(key.PrivateKey.PublicKey)
 	return &Account{
 		Address:    HexToAddress(strings.ToLower(fromAddr.Hex())),
-		PrivateKey: fromPrivateKey,
+		PrivateKey: key.PrivateKey,
 	}
 }
 
