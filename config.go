@@ -106,12 +106,14 @@ func (c *Config) MustGetToken(token string) *Token {
 }
 
 func (c *Config) GetToken(token string) *Token {
-	tokenInfo := c.config.GetStringMapString("tokens." + token)
+	tokenInfo := c.config.GetStringMapString("tokens." + strings.ToLower(token))
 	_decimal, _ := strconv.Atoi(tokenInfo["decimal"])
 	address := HexToAddress(tokenInfo["address"])
 	return &Token{
 		Address: &address,
 		Decimal: _decimal,
+		Symbol:  token,
+		Name:    token,
 	}
 }
 
