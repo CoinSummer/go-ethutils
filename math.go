@@ -26,7 +26,7 @@ func FormatAmount(amount *big.Int, decimal int) float64 {
 	return value
 }
 
-func BigAddPercent(value *big.Int, per int64) *big.Int {
-	a := big.NewInt(0).Mul(value, big.NewInt(per+10000))
+func BigPercent(value *big.Int, per int64) *big.Int {
+	a := big.NewInt(0).Mul(value, big.NewInt(per))
 	return big.NewInt(0).Div(a, big.NewInt(10000))
 }
