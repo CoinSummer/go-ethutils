@@ -30,6 +30,7 @@ func MakeTxOpts(account *Account, value *big.Int, gasPrice *big.Int, gasLimit ui
 		Value:    value,
 		GasPrice: gasPrice,
 		GasLimit: gasLimit,
+		Context:  context.Background(),
 	}
 	return txOpts
 }
