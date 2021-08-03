@@ -47,13 +47,13 @@ func GetWsClient(rpcHost string) *rpc.Client {
 func ParserChainInfo(chainInfoMap map[string]string) *Chain {
 	// TODO: check key
 	_chainId, _ := strconv.Atoi(chainInfoMap["chain_id"])
-	_gasPrice, _ := strconv.Atoi(chainInfoMap["gas_price"])
+	_gasPrice, _ := strconv.ParseFloat(chainInfoMap["gas_price"], 64)
 	chainInfo := &Chain{
 		ChainId:       int64(_chainId),
 		RpcAddr:       chainInfoMap["rpc_addr"],
 		WsAddr:        chainInfoMap["ws_addr"],
 		Explore:       chainInfoMap["explore"],
-		GasPrice:      big.NewInt(int64(_gasPrice) * GWEI),
+		GasPrice:      big.NewInt(int64(_gasPrice * GWEI)),
 		WrapToken:     HexToAddress(chainInfoMap["wrap_token"]),
 		BatchContract: HexToAddress(chainInfoMap["batch_contract"]),
 	}
