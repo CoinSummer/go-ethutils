@@ -12,17 +12,17 @@ type GasPrice struct {
 	Low      *big.Int `json:"slow"`
 }
 
-type sparkGasNowResp struct {
+type gasNowResp struct {
 	Code int       `json:"code"`
 	Data *GasPrice `json:"data"`
 }
 
 func GetSuggestGasPrice() *GasPrice {
-	resp, err := req.Get("https://gasnow.sparkpool.com/api/v3/gas/price")
+	resp, err := req.Get("https://etherchain.org/api/gasnow")
 	if err != nil {
 		return nil
 	}
-	r := &sparkGasNowResp{}
+	r := &gasNowResp{}
 	err = resp.ToJSON(r)
 	if err != nil || r.Code != 200 {
 		return nil

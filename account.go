@@ -70,7 +70,11 @@ func GetAccountFromPStr(pkStr string) *Account {
 }
 
 func GetAccountFromMnemonic(mnemonic string, index int) *Account {
-	km, _ := key_manager.NewKeyManagerWithMnemonic(256, "", mnemonic)
+	km, err := key_manager.NewKeyManagerWithMnemonic(256, "", mnemonic)
+	if err != nil {
+		fmt.Printf("mnemonic error")
+		return nil
+	}
 	key, err := km.GetKey(key_manager.PurposeBIP44, key_manager.CoinTypeETH, 0, 0, uint32(index))
 	if err != nil {
 		fmt.Printf("mnemonic error")
