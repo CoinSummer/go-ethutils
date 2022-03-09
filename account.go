@@ -122,7 +122,7 @@ func NewMnemonic(bitSize int, passphrase string) (*key_manager.KeyManager, error
 
 func IsMnemonic(words string) bool {
 	l := len(strings.Split(words, " "))
-	return l == 12 || l == 24
+	return l == 12 || l == 15 || l == 18 || l == 21 || l == 24
 }
 
 func PrivateKeyToHex(pk *ecdsa.PrivateKey) string {
@@ -133,5 +133,9 @@ func PrivateKeyToHex(pk *ecdsa.PrivateKey) string {
 func Sign(msg []byte, key *ecdsa.PrivateKey) ([]byte, error) {
 	ethMessage := append([]byte("\x19Ethereum Signed Message:\n"+strconv.Itoa(len(msg))), msg...)
 	hash := crypto.Keccak256(ethMessage)
-	return crypto.Sign(hash, key)
+	signature, err := crypto.Sign(hash, key)
+	if err == nil {
+		signature[64] += 27
+	}
+	return signature, err
 }
