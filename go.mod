@@ -1,4 +1,4 @@
-module github.com/deng00/ethutils
+module github.com/CoinSummer/go-ethutils
 
 go 1.15
 

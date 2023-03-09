@@ -1,4 +1,4 @@
-package ethutils
+package go_ethutils
 
 import (
 	"reflect"

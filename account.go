@@ -1,10 +1,10 @@
-package ethutils
+package go_ethutils
 
 import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
-	"github.com/deng00/ethutils/key_manager"
+	"github.com/CoinSummer/go-ethutils/key_manager"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
