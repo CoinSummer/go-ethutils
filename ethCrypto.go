@@ -173,21 +173,36 @@ func DecryptByKey(opt *EncryptOption, prvKeyStr string) ([]byte, error) {
 		return nil, fmt.Errorf("decode private key error: %v", err)
 	}
 	priKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), keyBytes)
+	fmt.Printf("EphemPublicKey: %s\n", hex.EncodeToString(opt.EphemPublicKey))
 	pubKey, err := btcec.ParsePubKey(opt.EphemPublicKey, btcec.S256())
 	if err != nil {
 		return nil, fmt.Errorf("parse public key error: %v", err)
 	}
 
+	pubKeyBytes := pubKey.SerializeCompressed() // 或者 pubKey.SerializeUncompressed()
+	pubKeyStr := hex.EncodeToString(pubKeyBytes)
+	fmt.Printf("pubKeyStr: %s\n", pubKeyStr)
+
 	ecdhKey := btcec.GenerateSharedSecret(priKey, pubKey)
+	fmt.Printf("ecdhKey: %x \n", ecdhKey)
 	derivedKey := sha512.Sum512(ecdhKey)
 	keyE := derivedKey[:32]
 	keyM := derivedKey[32:]
+
+	fmt.Printf("keyE: %x \n", keyE)
+	fmt.Printf("keyM (Go): %x\n", keyM)
+
 	var dataToMac []byte
 	dataToMac = append(dataToMac, opt.Iv...)
 	dataToMac = append(dataToMac, append(opt.EphemPublicKey, opt.Ciphertext...)...)
+	fmt.Printf("dataToMac (Go): %x\n", dataToMac)
 	hm := hmac.New(sha256.New, keyM)
 	hm.Write(dataToMac) // everything is hashed
 	expectedMAC := hm.Sum(nil)
+
+	fmt.Printf("expectedMAC: %x \n", expectedMAC)
+	fmt.Printf("opt.Mac: %x \n", opt.Mac)
+
 	if !hmac.Equal(opt.Mac, expectedMAC) {
 		return nil, btcec.ErrInvalidMAC
 	}

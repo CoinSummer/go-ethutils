@@ -8,7 +8,7 @@ import (
 	"math/big"
 )
 
-func MakeTxOpts(account *Account, value *big.Int, gasPrice *big.Int, gasLimit uint64, chainID int64) *bind.TransactOpts {
+func MakeTxOpts(account *Account, value *big.Int, gasPrice *big.Int, gasLimit uint64, chainID int64, noSend bool) *bind.TransactOpts {
 	txOpts := &bind.TransactOpts{
 		From:  account.Address,
 		Nonce: account.GetNonce(),
@@ -31,6 +31,7 @@ func MakeTxOpts(account *Account, value *big.Int, gasPrice *big.Int, gasLimit ui
 		GasPrice: gasPrice,
 		GasLimit: gasLimit,
 		Context:  context.Background(),
+		NoSend:   noSend,
 	}
 	return txOpts
 }
